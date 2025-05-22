@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  app:
+    container_name: app
+    build: .
+    image: fast_crypto
+    ports:
+      - '8000:8000'
+#    command: ["/bin/sh", "/code/entrypoint.sh"]
+    depends_on:
+      - pgdb
+
+
+  pg-admin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    command: pg-admin
+    environment:
+      # Default email for pgAdmin 4
+      PGADMIN_DEFAULT_EMAIL: admin@email.com
+      # Password for pgAdmin 4
+      PGADMIN_DEFAULT_PASSWORD: adminpassword
+    ports:
+      # Map host port 5050 to container port 80
+      - 5050:80
+    volumes:
+      # Mount a volume to persist pgAdmin 4 data
+      - pgadmin_data:/var/lib/pgadmin
+    restart: always
+
+  pgdb:
+    container_name: pgdb
+    image: postgres:latest
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+     POSTGRES_USER: user
+     POSTGRES_PASSWORD: password
+     POSTGRES_DB: fast_ctypto_db
+#    volumes:
+#      - pgdata:/var/lib/postgresql/data
+
+volumes:
+#  pgdata:
+  pgadmin_data:
