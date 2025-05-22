@@ -6,7 +6,6 @@ from database import get_async_session
 from model import Trade
 from repo import TradeRepo, UserRepo
 from schema import TradeIn
-from service.external import buy_from_exchange
 
 
 class TradeService:
@@ -19,6 +18,9 @@ class TradeService:
         self.session = session
         self.trade_repo = trade_repo
         self.user_repo = user_repo
+
+    async def buy_from_exchange(self, symbol: str, cost: int):
+        print(f'exchange was done for symbol {symbol} for cost {cost}$')
 
     async def submit_trade(self, data: TradeIn):
         async with self.session.begin():
@@ -45,20 +47,25 @@ class TradeService:
                 amount=data.amount,
                 price=price,
                 cost=cost,
-                settled=False
+                settled=True
             )
-            # add trade to database before further processing
-            await self.trade_repo.add(new_trade)
+            if cost >= MIN_EXCHANGE_VAL:
+                await self.trade_repo.add(new_trade)
+                user.balance -= cost
+                await self.buy_from_exchange(symbol, cost)
+            else:
+                new_trade.settled = False
+                await self.trade_repo.add(new_trade)
 
-            # read pending trades
-            trades = await self.trade_repo.get_unsettled_trades(symbol)
-            total_cost = sum(t.cost for t in trades)
+                # read pending trades
+                trades = await self.trade_repo.get_unsettled_trades(symbol)
+                total_cost = sum(t.cost for t in trades)
 
-            if total_cost >= MIN_EXCHANGE_VAL:
-                for t in trades:
-                    t.user.balance -= t.cost
-                    t.settled = 1
-                await self.session.flush()
-                buy_from_exchange(symbol, total_cost)
-        users = await self.user_repo.get_all()
-        return users
+                if total_cost >= MIN_EXCHANGE_VAL:
+                    for t in trades:
+                        t.user.balance -= t.cost
+                        t.settled = 1
+                    await self.session.flush()
+                    await self.buy_from_exchange(symbol, total_cost)
+
+        return await self.user_repo.get_all()

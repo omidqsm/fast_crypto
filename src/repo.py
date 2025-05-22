@@ -41,4 +41,6 @@ class UserRepo:
         return user
 
     async def get_all(self):
-        return (await self.session.scalars(select(User))).all()
+        stmt = select(User).order_by(User.id)
+        result = await self.session.scalars(stmt)
+        return result.all()

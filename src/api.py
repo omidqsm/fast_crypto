@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, status
 
 from schema import TradeIn
-from service.internal import TradeService
+from service import TradeService
 
 router = APIRouter()
 
 
-@router.post("/trade", status_code=status.HTTP_200_OK)
+@router.post("/trade", status_code=status.HTTP_201_CREATED)
 async def trade_api(
     data: TradeIn,
     trade_service: TradeService = Depends(TradeService),

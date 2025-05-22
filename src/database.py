@@ -36,4 +36,5 @@ async def fill_db():
             session.add(user2)
             session.add(user3)
     except Exception as e:
+        # in the next runs of the project this part of code raises exception. we just ignore it.
         print(e)

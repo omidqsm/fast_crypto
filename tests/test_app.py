@@ -24,7 +24,7 @@ async def test_single_trade_more_than_10_dollars(create_default_users):
             "symbol": "ABAN",
             "amount": 3
         }
-        response = await client.post('/orders/trade', json=trade)
+        response = await client.post('/trade', json=trade)
         assert response.status_code == 200
         response_data = response.json()
         for u in response_data:
@@ -45,7 +45,7 @@ async def test_less_than_10_dollar_aban_trades(create_default_users):
             "symbol": "ABAN",
             "amount": 1
         }
-        response = await client.post('/orders/trade', json=trade_1)
+        response = await client.post('/trade', json=trade_1)
         assert response.status_code == 200
         response_data = response.json()
 
@@ -63,7 +63,7 @@ async def test_less_than_10_dollar_aban_trades(create_default_users):
             "symbol": "ABAN",
             "amount": 1
         }
-        response = await client.post('/orders/trade', json=trade_2)
+        response = await client.post('/trade', json=trade_2)
         assert response.status_code == 200
         response_data = response.json()
 
@@ -81,7 +81,7 @@ async def test_less_than_10_dollar_aban_trades(create_default_users):
             "symbol": "ABAN",
             "amount": 2
         }
-        response = await client.post('/orders/trade', json=trade_3)
+        response = await client.post('/trade', json=trade_3)
         assert response.status_code == 200
         response_data = response.json()
         for u in response_data:
